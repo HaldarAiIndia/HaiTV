@@ -1,0 +1,2680 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaiTV - STEAMING NOW!</title>
+    <link rel="icon" href="https://i.ibb.co/wrs2F1WD/Picsart-25-11-20-16-28-11-712.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Shaka Player CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.12/controls.css">
+    <style>
+        :root {
+            --primary-color: #e50914;
+            --primary-gradient: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+            --secondary-color: #0071eb;
+            --dark-bg: #0f0f13;
+            --light-bg: #1a1a23;
+            --card-bg: #1e1e29;
+            --text-color: #ffffff;
+            --text-secondary: #a0a0b0;
+            --header-height: 70px;
+            --player-aspect: 9/16;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        .mobile-header {
+            display: none;
+        }
+
+        .mobile-nav {
+            display: none;
+        }
+
+        .main-content {
+            display: flex;
+            margin-top: 0;
+            min-height: 100vh;
+        }
+
+        .player-section {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #liveVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+        #adVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: none;
+            z-index: 20;
+        }
+
+        #posterImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        #loadingOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--primary-color);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ad-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .skip-ad-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .skip-ad-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .ad-progress {
+            width: 80%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .ad-progress-inner {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(229, 9, 20, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .channel-info {
+            display: none;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 30px;
+            z-index: 10;
+            opacity: 0;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            align-items: center;
+        }
+
+        .video-container:hover .controls {
+            opacity: 1;
+        }
+
+        .control-btn, .mute-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .control-btn:hover, .mute-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+        }
+
+        .channel-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quality-select {
+            border-radius: 20px;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        .quality-select option {
+            background: var(--dark-bg);
+            color: white;
+        }
+        
+        .quality-select {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+        .source-select {
+            border-radius: 20px;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            max-width: 120px;
+        }
+
+        .source-select option {
+            background: var(--dark-bg);
+            color: white;
+        }
+        
+        /* Player এবং Source button hide করার জন্য */
+.source-select {
+    display: none !important;
+}
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .volume-slider {
+            width: 70px;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .channels-sidebar {
+            width: 30%;
+            max-width: 400px;
+            background: var(--light-bg);
+            padding: 25px 20px;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 30px;
+            border-radius: 16px 0 0 16px;
+            margin: 10px 0 10px 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.05);
+        }
+
+        .channels-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .channels-sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin: 5px;
+        }
+
+        .channels-sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+            background-clip: padding-box;
+        }
+
+        .channels-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #b80710;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .channel-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 0px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border-radius: 30px;
+            border: none;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* UPDATED CHANNEL LIST STYLES */
+        .channel-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .channel-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            aspect-ratio: 1/1;
+            width: 100%;
+            justify-content: center;
+            position: relative;
+        }
+
+        .channel-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .channel-item.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.2) 0%, rgba(184, 7, 16, 0.15) 100%);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .channel-item-img {
+            width: 100%;
+            height: auto;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .channel-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .channel-item-info {
+            display: none;
+        }
+
+        .channel-item-live {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 9px;
+            padding: 3px 6px;
+            border-radius: 30px;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .drm-badge {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background: #ff6b00;
+            color: white;
+            font-size: 8px;
+            padding: 1px 3px;
+            border-radius: 3px;
+            z-index: 3;
+            font-weight: bold;
+        }
+
+        .category-bar {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 20px 0;
+            align-items: center;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-bar button {
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .category-bar button.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .tplay-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .tplay-logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+        }
+
+        .error-message {
+            background: rgba(229, 9, 20, 0.2);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            color: var(--text-color);
+        }
+
+        .ios-fullscreen-btn {
+            display: none;
+        }
+
+        /* Protection overlay */
+        .protection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 9999;
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .player-section {
+                max-width: 100%;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: var(--dark-bg);
+                padding-bottom: 10px;
+            }
+            
+            .channels-sidebar {
+                width: 100%;
+                max-width: none;
+                height: auto;
+                position: relative;
+                top: 0;
+                border-radius: 16px;
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .channel-list {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 12px;
+            }
+            
+            .player-section {
+                padding-top: 30px;
+            }
+            
+            .category-bar {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .category-bar button {
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tplay-logo {
+                font-size: 16px;
+            }
+            
+            .player-section {
+                padding: 20px;
+            }
+            
+            .controls {
+                bottom: 10px;
+                padding: 6px 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 90%;
+                gap: 5px;
+            }
+            
+            .control-btn, .mute-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+            
+            .volume-slider {
+                width: 50px;
+            }
+            
+            .channel-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .sidebar-header {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .sidebar-header > div:first-child {
+                flex: 1;
+            }
+            
+            .tplay-logo {
+                margin-left: 15px;
+            }
+            
+            .source-select {
+                max-width: 100px;
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            .quality-select {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            .ios-fullscreen-btn {
+                display: none !important;
+            }
+            
+            .control-btn:not(.ios-fullscreen-btn) {
+                display: flex;
+            }
+            
+            .channel-list {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 10px;
+            }
+            
+            .channel-item {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .controls {
+                width: 95%;
+                bottom: 5px;
+            }
+            
+            .video-container {
+                border-radius: 8px;
+            }
+            
+            .quality-select, .source-select {
+                font-size: 10px;
+                padding: 3px 6px;
+                max-width: 80px;
+            }
+            
+            .sidebar-header {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .section-title {
+                font-size: 16px;
+            }
+            
+            .tplay-logo {
+                font-size: 14px;
+            }
+            
+            .tplay-logo img {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .channel-count {
+                font-size: 12px;
+            }
+            
+            .ios-fullscreen-btn {
+                display: none !important;
+            }
+            
+            .control-btn:not(.ios-fullscreen-btn) {
+                display: flex;
+            }
+            
+            .channel-list {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+                gap: 8px;
+            }
+            
+            .channel-item-live {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+        }
+
+        @media (max-width: 768px) and (min-width: 320px) {
+            .controls {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+            
+            .control-btn, .mute-btn, .nav-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .nav-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .volume-slider {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="protection-overlay" id="protectionOverlay"></div>
+    
+    <div class="mobile-header">
+    </div>
+
+    <div class="mobile-nav" id="mobileNav">
+    </div>
+
+    <div class="main-content">
+        <section class="player-section">
+            <div class="video-container">
+                <img id="posterImage" src="https://i.ytimg.com/vi_webp/p7ejX9YIBTI/hqdefault.webp" alt="HaiTV Poster">
+                <div id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    <div>Loading...</div>
+                </div>
+                <video id="liveVideo" playsinline webkit-playsinline></video>
+                <video id="adVideo" playsinline webkit-playsinline></video>
+                <div class="ad-overlay" id="adOverlay">
+                    <div class="ad-progress">
+                        <div class="ad-progress-inner" id="adProgress"></div>
+                    </div>
+                    <button class="skip-ad-btn" id="skipAdBtn">Skip Ad (8s)</button>
+                </div>
+                <div class="controls">
+                    <button class="nav-btn" onclick="prevChannel()" title="Previous Channel"><i class="fas fa-chevron-left"></i></button>
+                    <button class="control-btn" onclick="togglePlayPause()" id="playPauseBtn" title="Play/Pause"><i class="fas fa-pause"></i></button>
+                    <button class="control-btn" onclick="cycleZoom()" title="Change View"><i class="fas fa-expand-alt"></i></button>
+                    <button class="control-btn" onclick="toggleFullscreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    <button class="control-btn ios-fullscreen-btn" onclick="requestFullscreen()" title="Fullscreen (iOS)"><i class="fas fa-expand"></i></button>
+                    <button class="control-btn" onclick="togglePiP()" title="Picture-in-Picture"><i class="fas fa-tv"></i></button>
+                    <div class="volume-container">
+                        <button class="mute-btn" onclick="toggleMute()" id="muteBtn" title="Mute"><i class="fas fa-volume-up"></i></button>
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                    </div>
+                    <button class="nav-btn" onclick="nextChannel()" title="Next Channel"><i class="fas fa-chevron-right"></i></button>
+                    <select class="source-select" id="sourceMenu">
+                        <option value="0">Main Source</option>
+                    </select>
+                    <select class="quality-select" id="qualityMenu">
+                        <option value="auto">Auto Quality</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <p><i class="fas fa-exclamation-triangle"></i> <span id="errorText">Channel failed to load. Please try another channel.</span></p>
+            </div>
+        </section>
+
+        <aside class="channels-sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <h2 class="section-title">Live Channels</h2>
+                    <div class="channel-count" id="channelCount">6 channels</div>
+                </div>
+                <div class="tplay-logo">
+                    <img src="https://i.ibb.co/pVnRnkJ/Picsart-25-11-20-16-27-17-538.png" alt="HaiTV Logo">
+                    <span> </span>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search channels..." id="channelSearch">
+            </div>
+
+            <div class="category-bar">
+                <button class="active" onclick="filterCategory('all', event)">All</button>
+                <button onclick="filterCategory('News', event)">News</button>
+                <button onclick="filterCategory('Kids', event)">Kids</button>
+                <button onclick="filterCategory('Music', event)">Music</button>
+                <button onclick="filterCategory('Movie', event)">Movie</button>
+                <button onclick="filterCategory('Entertainment', event)">Entertainment</button>
+                <button onclick="filterCategory('Mix-Entertainment', event)">Mix Entertainment</button>
+                <button onclick="filterCategory('Sports', event)">Sports</button>
+                <button onclick="filterCategory('Infotainment', event)">Infotainment</button>
+                <button onclick="filterCategory('Religious', event)">Religious</button>
+            </div>
+
+            <div class="channel-list" id="channelList">
+            </div>
+        </aside>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.12/shaka-player.ui.js"></script>
+    
+    <script>
+        // Protection Scripts
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionWarning();
+            return false;
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'U') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'K')
+            ) {
+                e.preventDefault();
+                showProtectionWarning();
+                return false;
+            }
+        });
+        
+        function detectDevTools() {
+            const widthThreshold = window.outerWidth - window.innerWidth > 160;
+            const heightThreshold = window.outerHeight - window.innerHeight > 160;
+            
+            if (widthThreshold || heightThreshold) {
+                showProtectionWarning();
+            }
+        }
+        
+        function showProtectionWarning() {
+            const overlay = document.getElementById('protectionOverlay');
+            overlay.style.display = 'block';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 1500);
+        }
+        
+        setInterval(detectDevTools, 1000);
+        
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Global Variables
+        const video = document.getElementById("liveVideo");
+        const adVideo = document.getElementById("adVideo");
+        const muteBtn = document.getElementById("muteBtn");
+        const playPauseBtn = document.getElementById("playPauseBtn");
+        const volumeSlider = document.getElementById("volumeSlider");
+        const qualityMenu = document.getElementById("qualityMenu");
+        const sourceMenu = document.getElementById("sourceMenu");
+        const channelList = document.getElementById("channelList");
+        const channelSearch = document.getElementById("channelSearch");
+        const posterImage = document.getElementById("posterImage");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const errorMessage = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        const channelCount = document.getElementById("channelCount");
+        const adOverlay = document.getElementById("adOverlay");
+        const skipAdBtn = document.getElementById("skipAdBtn");
+        const adProgress = document.getElementById("adProgress");
+
+        let hls;
+        let shakaPlayer;
+        let zoomIndex = 0;
+        const zoomModes = ["fill", "cover", "contain"];
+        let currentChannelUrl = null;
+        let currentChannelIndex = 0;
+        let isPlaying = false;
+        let currentCategory = 'all';
+        let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        let currentBackupIndex = 0;
+        let currentBackupSources = [];
+        let filteredChannels = [];
+        let channelMap = new Map();
+
+        // Ad tracking variables
+        let channelClickCount = 0;
+        let adInterval = Math.floor(Math.random() * 2) + 3;
+        let adTimer = null;
+        let adProgressInterval = null;
+        let pendingChannelIndex = null;
+        let isAdPlaying = false;
+
+        // List of ad videos
+        const adVideos = [
+            "https://www.youtube.com/embed/p7ejX9YIBTI?rel=0",
+            "https://www.youtube.com/embed/p7ejX9YIBTI?rel=0"
+        ];
+
+        // Channels Data with DRM Support
+        const channels = [
+             { 
+                name: "Sangsad TV", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/bd-sangsad.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/RVR9YF6Y/sangsad.jpg", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "BTV", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=a0e6e9b6-b20b-4f54-82d6-881bef762cfd&e.m3u8" },
+                    { name: "Server 2", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/nzQXt33R/btv.jpg", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "BTV Chattogram", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/btv-chattagram.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/mgvdN3ZW/btv-cht.jpg", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Somoy TV", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/somoy-tv/index.m3u8" },
+                    { name: "Server 2", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/HsVVr6FH/somoy-tv.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Jamuna Television", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/jamuna-tv/index.m3u8" },
+                    { name: "Server 2", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/dtR7Gh4t/jamuna-tv.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Independent TV",
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=22f28ae5-8c15-4904-b9f6-70bbd94cbc43&e.m3u8" },
+                    { name: "Server 2", url: "https://tplay.live/out/news/independent-tv/index.m3u8" },
+                    { name: "Server 3", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8" },
+
+                ], 
+                img: "https://i.postimg.cc/3rL7TH81/Independent-TV.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Channel 24",
+                sources: [
+                    { name: "Server 1", url: "https://ch24cdn.ncare.live/channel24/ch24office/index.m3u8" },
+                    { name: "Server 2", url: "https://tplay.live/out/news/channel-24/index.m3u8" },
+                    { name: "Server 3", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/QdqkCSFX/channel-24.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "News 24",
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/news-24/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/bNJny8Qw/news-24.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Ekattor Television",
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=1a7a1365-ae2c-470f-9fb2-25c6e83bb108&e.m3u8" },
+                    { name: "Server 2", url: "https://tplay.live/out/news/ekattor-tv/index.m3u8" },
+                    { name: "Server 3", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/jjtWwrG9/ekattor-tv.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "ATN News",
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/atn-news/index.m3u8" },
+                    { name: "Server 2", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1706/output/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/ZRFCxYdp/atn-news.png", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "DBC News",
+                sources: [
+                    { name: "Server 1", url: "https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDDEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFsaWRtaW51aiPhnPTI2/dbcnews.stream/mono.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/cJGD5HdQ/dbc.jpg", 
+                category: "News",
+                description: "Bangladesh"
+            },
+            { 
+                name: "News18 Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://n18syndication.akamaized.net/bpk-tv/News18_Bangla_NW18_MOB/output01/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Dydmbp8n/news18-bangla.png", 
+                category: "News",
+                description: "India"
+            },
+            { 
+                name: "ABP Ananda", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/abp-ananda/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/HjGW7XCJ/abp-ananda.png", 
+                category: "News",
+                description: "India"
+            },
+            { 
+                name: "Zee 24 Ghanta", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-zee24ghantaa-xiaomi/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/pdgPSKps/zee-24ghanta.png", 
+                category: "News",
+                description: "India"
+            },
+            { 
+                name: "WION", 
+                sources: [
+                    { name: "Server 1", url: "https://d7x8z4yuq42qn.cloudfront.net/index_1.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/ZKqXrCqn/wion.jpg", 
+                category: "News",
+                description: "India"
+            },
+            { 
+                name: "Al Jazeera", 
+                sources: [
+                    { name: "Server 1", url: "https://live-hls-web-aje-fa.thehlive.com/AJE/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/50TpLNKY/aljazeera.jpg", 
+                category: "News",
+                description: "Qatar"
+            },
+            {
+                name: "BBC News", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/out/news/bbc-news/index.m3u8" },
+                    { name: "Server 2", url: "https://tplay.live/bdix/news/bbc-news/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/s2679ZP4/bbc.jpg", 
+                category: "News",
+                description: "London"
+            },
+            {
+                name: "Duronto",
+                sources: [
+                    { name: "Server 1", url: "https://tvsen4.aynaott.com/durontotv/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/4xgPNDrf/duronto.jpg", 
+                category: "Kids",
+                description: "Bangladesh"
+            },
+            {
+                name: "Rongeen TV",
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/1029/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/Z5bg3drK/rongeen.jpg", 
+                category: "Kids",
+                description: "India"
+            },
+            {
+                name: "Sony Yay",
+                sources: [
+                    { name: "Server 1", url: "https://allottplay.com/tv/toffee/live.php?id=sonyyay&e=.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/1413YzhR/yay.jpg", 
+                category: "Kids",
+                description: "India"
+            },
+            { 
+                name: "Discovery Kids", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "601f58d4b7094d2baf78c85d1d9cb6c9",
+                            key: "609e0cc03198455fa36fd2cc3e7f940d"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/Gt38t22F/d-kids.jpg", 
+                category: "Kids",
+                description: "India"
+            },
+            { 
+                name: "CN", 
+                sources: [
+                    { name: "Server 1", url: "https://vodzong.mjunoon.tv:8087/streamtest/cartoon-network-87/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/d1K0Drvh/Cn.png", 
+                category: "Kids",
+                description: "India"
+            },
+            { 
+                name: "Minimax", 
+                sources: [
+                    { name: "Server 1", url: "https://vodzong.mjunoon.tv:8087/streamtest/disckids-157-1/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/xC2TbNWn/minimax.jpg", 
+                category: "Kids",
+                description: "India"
+            },
+            {
+                name: "Animax",
+                sources: [
+                    { name: "Server 1", url: "https://amg02159-kcglobal-amg02159c1-samsung-in-521.playouts.now.amagi.tv/playlist/amg02159-kcglobal-animax-samsungin/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/8PQrRLN8/Animax.png", 
+                category: "Kids",
+                description: "Asia"
+            },
+            { 
+                name: "Zoo Moo",
+                sources: [
+                    { name: "Server 1", url: "https://cdn.skygo.mn/live/disk1/Zoomoo/HLSv3-FTA/Zoomoo.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/3J0Thmrb/zoo-moo.jpg", 
+                category: "Kids",
+                description: "Southeast Asia"
+            },
+            { 
+                name: "24/7 Motu Patlu", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/motu-patlu/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/sgxQd9gz/motu-patlu.jpg", 
+                category: "Kids",
+                description: "Hindi"
+            },
+            { 
+                name: "24/7 Ninja Hattori", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/ninja-hattori/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Kz0h2LzX/ninja-hattori.jpg", 
+                category: "Kids",
+                description: "Hindi"
+            },
+            { 
+                name: "24/7 Doraemon", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/doraemon/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/7hrsjZ1v/doraemon.jpg", 
+                category: "Kids",
+                description: "Hindi"
+            },
+            { 
+                name: "24/7 Oggy and the Cockroaches", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/oggy-and-the-cockroaches/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/25T1j5cX/oggy2.jpg", 
+                category: "Kids",
+                description: "Hindi"
+            },
+            { 
+                name: "24/7 Gopal Bhar", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/gopal-bhar/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Pxj1jp7M/gopal-bhar.jpg", 
+                category: "Kids",
+                description: "Bengali"
+            },
+            { 
+                name: "24/7 Bantul The Great", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/kids/bantul-the-great/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/X7pGtkJb/bantul.jpg", 
+                category: "Kids",
+                description: "Bengali"
+            },
+            { 
+                name: "Music India", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-2.pishow.tv/live/226/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/QNYG5Kz9/music-india.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "9XM", 
+                sources: [
+                    { name: "Server 1", url: "https://wiselp.wiseplayout.com/9XM/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Wb8VmBjp/9xm.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "9X Jalwa", 
+                sources: [
+                    { name: "Server 1", url: "https://wiselp.wiseplayout.com/9X_Jalwa/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/h4VgFtZS/9x-jalwa.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Deewana", 
+                sources: [
+                    { name: "Originals", url: "https://tplay.live/originals/deewana/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/9Q7G21N6/Deewana.png", 
+                category: "Music",
+                description: "Asia"
+            },
+            { 
+                name: "Mastiii", 
+                sources: [
+                    { name: "Server 1", url: "https://sablive-ddpb.akamaized.net/mastii/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/L4f6PQnh/mastiii.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "B4U Music", 
+                sources: [
+                    { name: "Server 1", url: "https://cdnb4u.wiseplayout.com/B4U_Music/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/mrvFm9CF/B4-U-Music.png", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Music Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDDEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFsaWRtaW51aiPhnPTI2/musicbangla2025.stream/tracks-v1a1/mono.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Gh92ZkQT/music-bangla.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Bengali Beats", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/tplay/playout/209587/master.m3u8" },
+                    { name: "Server 2", url: "https://live20.bozztv.com/giatvplayout7/giatv-209587/tracks-v1a1/mono.ts.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/jSLNzXgM/Bengali-Beats.png", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Sangeet Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/1143/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/NGy2zxLw/sangeet-bangla.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Sangeet Bhojpuri", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/1293/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/yYgHbgfn/sangeet-bhojpuri-1.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Saga Music Haryanvi", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/saga-music-haryanvi/master.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/P5RRD2bM/saga-har.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "Oxygen Music", 
+                sources: [
+                    { name: "Server 1", url: "https://tplay.live/tplay/playout/209901/master.m3u8" },
+                    { name: "Server 2", url: "https://live20.bozztv.com/giatvplayout7/giatv-209901/tracks-v1a1/mono.ts.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/8z1kS0G5/Oxygen-Music.jpg", 
+                category: "Music",
+                description: "Asia"
+            },
+            { 
+                name: "WWM", 
+                sources: [
+                    { name: "Server 1", url: "https://muzzik-live.morescreens.com/mts-5/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/gJ5cxqkt/wwm.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "24/7 Coke Studio Bangla", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/music/coke-studio-bangla/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/jj5QHB7R/csb.jpg", 
+                category: "Music",
+                description: "Bangladesh"
+            },
+            { 
+                name: "24/7 Wind of Change", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/music/wind-of-change/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/HnyQPzkF/wind-of-change.jpg", 
+                category: "Music",
+                description: "Bangladesh"
+            },
+            { 
+                name: "24/7 Dance Performance", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/music/dance-performance/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/QMQsqnGY/dance.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "24/7 Bhojpuri Songs", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/music/bhojpuri/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/mk6mMRdL/bhojpuri.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "24/7 Adnan Sami", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/music/adnan-sami/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/SxVJGs6X/adnan-sami.jpg", 
+                category: "Music",
+                description: "India"
+            },
+            { 
+                name: "24/7 Bangla Movies", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/movies/bangla-movies/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/7YR2vbGk/bm.jpg", 
+                category: "Movie",
+                description: "Bengali"
+            },
+            { 
+                name: "24/7 Bollywood Movies", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/movies/bollywood-movies/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/HsvPf09Y/bollywood.jpg", 
+                category: "Movie",
+                description: "Bengali"
+            },
+            { 
+                name: "24/7 Dubbed Movies", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/movies/dubbed-movies/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/DZmhKfbK/dubbed.jpg", 
+                category: "Movie",
+                description: "Bengali"
+            },
+            { 
+                name: "Zee Bangla Cinema", 
+                sources: [
+                    { name: "Server 1", url: "https://smart.bengaldigital.live/Zee-Bangla-Cinema/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/GmzS2s5Y/zbs.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Zee Cinema HD", 
+                sources: [
+                    { name: "Server 1", url: "https://amg17931-zee-amg17931c5-samsung-th-5696.playouts.now.amagi.tv/playlist/amg17931-asiatvusaltdfast-zeecinema-samsungth/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/k47QtjRg/zc.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Zee Bollywood", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebollywood/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "e61523260c614746b25b9a5523fe9a39",
+                            key: "72ddbf37f76f49acbb8e140e7279e7a1"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/DzCBJpYs/z-bollywood.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "& Pictures HD", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictureshd/default/index.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "de8045e9f0fb4d03845dcc4a8bd7712a",
+                            key: "6807bd09bda34ada83152908192af6d6"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/g22ZV7bZ/pictures.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Goldmines", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-2.pishow.tv/live/1459/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/VLCpyP4j/pishow-1459.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Goldmines Movies", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-2.pishow.tv/live/1461/master.m3u8" },
+                ], 
+                img: "https://yt3.googleusercontent.com/d66J-MMZ06-55gkF5maclPGB5f5j1L0SAs3iWnl3lhoswlWrJ67wD2a3mZGkgHgt-W3kMrIT=s900-c-k-c0x00ffffff-no-rj", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Bollywood HD", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/xCNC6b26/Bollywood-HD.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Bollywood Classic", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/manifest.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/13Sq4MQs/Bollywood-Classic.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Shemaroo Bollywood", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/0NW9N0WT/Shemaroo-Bollywood.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "B4U Movies", 
+                sources: [
+                    { name: "Server 1", url: "https://cdnb4u.wiseplayout.com/B4U_Movies/master.m3u8" },
+                    { name: "Server 2", url: "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/tgwF8wQJ/B4-U-Movies.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "B4U Kadak", 
+                sources: [
+                    { name: "Server 1", url: "https://cdnb4u.wiseplayout.com/B4U_Kadak/master.m3u8" },
+                    { name: "Server 2", url: "https://amg00877-b4unew-amg00877c4-xiaomi-in-5473.playouts.now.amagi.tv/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/zvnwCjQB/B4-U-Kadak.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "B4U Bhojpuri", 
+                sources: [
+                    { name: "Server 1", url: "https://cdnb4u.wiseplayout.com/B4U_Bhojpuri/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/CxJNrcxn/B4-U-Bhojpuri.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Bhojpuri Cinema", 
+                sources: [
+                    { name: "Server 1", url: "https://live-bhojpuri.akamaized.net/liveabr/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/1z2YMvvc/Bhojpuri-Cinema.png", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Zee BollyMovies", 
+                sources: [
+                    { name: "Server 1", url: "https://amg17931-zee-amg17931c8-samsung-th-6526.playouts.now.amagi.tv/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/pTPpbML6/zee-bollymovies.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "& Flix", 
+                sources: [
+                    { name: "Server 1", url: "https://edge3-moblive.yuppcdn.net/drm/smil:nflixdrm.smil/chunklist_b996000.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/NfBgbv0y/flix.jpg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Movies Now HD", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://times-ott-live.akamaized.net/moviesnow_wv_drm/index.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "40f019b86241d23ef075633fd7f1e927",
+                            key: "058dec845bd340178a388edd104a015e"
+                        }
+                    }
+                ], 
+                img: "https://d229kpbsb5jevy.cloudfront.net/timesplay/content/common/logos/channel/logos/wthfwe.jpeg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "MNX HD", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://times-ott-live.akamaized.net/mnxhd_wv_drm/index.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "40f019b86241d23ef075633fd7f1e927",
+                            key: "058dec845bd340178a388edd104a015e"
+                        }
+                    }
+                ], 
+                img: "https://d229kpbsb5jevy.cloudfront.net/timesplay/content/common/logos/channel/logos/vunjev.jpeg", 
+                category: "Movie",
+                description: "India"
+            },
+            { 
+                name: "Lotus Macau", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn.skygo.mn/live/disk1/Lotus/HLSv3-FTA/Lotus.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/6q0JD7ZB/lotus-macau.png", 
+                category: "Movie",
+                description: "China"
+            },
+            { 
+                name: "Best Action", 
+                sources: [
+                    { name: "Best-Action", url: "https://streams2.sofast.tv/ptnr-yupptv/title-BEST_ACTION_YUPPTV/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/9a4a5412-ca99-48d3-9013-d1811b95b9d2/manifest.m3u8" },
+                    { name: "Best-Thriller", url: "https://streams2.sofast.tv/ptnr-yupptv/title-BEST_THRILLER_YUPPTV/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/ce168a85-c8d4-41d6-a597-cc8fd7baddd9/manifest.m3u8" },
+                    { name: "Best-Classics", url: "https://streams2.sofast.tv/ptnr-yupptv/title-BEST_CLASSIC_TV_YUPPTV/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4f5ab846-bcf0-47aa-b578-70054f98f2f1/manifest.m3u8" },
+                    { name: "Best-Drama", url: "https://streams2.sofast.tv/ptnr-yupptv/title-BEST_DRAMA_YUPPTV/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/9800ea5c-2183-4160-9f01-70e5d6428a50/manifest.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/ncHCB2vs/best-action.png", 
+                category: "Movie",
+                description: "World"
+            },
+            { 
+                name: "Star Jalsha", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=f07177e9-d1a9-48b4-8e2e-1718d098bbfb&e.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/WpQ9PsZ3/star-jalsha.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Zee Bangla", 
+                sources: [
+                    { 
+                        name: "SD", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebangla/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "1df83e058b864da896c9288eef63b113",
+                            key: "fc32f26239054b56aab48225305598fe"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/wj9Q6Mj6/zee-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Colors Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://tvsen3.aynaott.com/u3LkNQ7UHhFX/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/vTQZ4Jg6/colors-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Sun Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://smart.bengaldigital.live/sun-bangla-paid/tracks-v1a1/mono.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/Yqvwd2HC/sun-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Enterr10 Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://live-bangla.akamaized.net/liveabr/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/50rsyVks/enter10-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Ruposhi Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/1039/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/8c1LTnTZ/ruposhi-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "DD Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/7ff57cc9046b4c188b51a0d506f36e7f/index.m3u8" },
+                ], 
+                img: "https://yt3.googleusercontent.com/jJxkTYCjjCHI1_OB6NK8G1n4vu-EIOj8gaPTxbnFA9tO_jkWJdCfUZy23fVCQtthdW9Nf8Et=s900-c-k-c0x00ffffff-no-rj", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Khushboo Bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/1473/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/brJdCXyf/khushboo-bangla.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Akash Aath", 
+                sources: [
+                    { name: "Server 1", url: "https://cdn-4.pishow.tv/live/969/master.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/WzkcbSSJ/akash-aath.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Sony Aath", 
+                sources: [
+                    { name: "Server 1", url: "https://allottplay.com/tv/toffee/live.php?id=sonyaath&e=.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/y8WtVLd6/sony-aath.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Star Plus", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=74524e79-5f3a-4824-8202-b9e346acb9a4&e.m3u8" },
+                    
+                ], 
+                img: "https://i.postimg.cc/htNZQ0x0/Star-Plus.jpg", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Zee TV", 
+                sources: [
+                    { 
+                        name: "HD", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "ed068cf84f0640ccbc7c0e395c0a272e",
+                            key: "bb722190f2bb446391020411a7d0828b"
+                        }
+                    }
+                ], 
+                img: "https://preview.redd.it/zee-tv-new-logo-v0-rdavl0od4j5f1.jpeg?auto=webp&s=23fc180397ed9368e1b7e637e5c6a6d350647b1f", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "And TV SD", 
+                sources: [
+                    { 
+                        name: "DRM Source", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andtv/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "26df86eeebb04d7fbc45c948f76e81fd",
+                            key: "5f3a23f1a73c4c96ababce5fffe7b06b"
+                        }
+                    }
+                ], 
+                img: "https://yt3.googleusercontent.com/6Hg2El_eMujZPFE550K1xXmX1h7s8QR-ZtylPKLHulf-UBUWmPFWG7SMSl-XNYFtlWlWpeuu=s900-c-k-c0x00ffffff-no-rj", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Sony Entertainment", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=0b0235db-e5b4-48d9-95bc-30a7e3228947&e.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/SRjjJD1p/set.jpg", 
+                category: "Entertainment",
+                description: "Bangladesh"
+            },
+            { 
+                name: "DD National", 
+                sources: [
+                    { name: "Server 1", url: "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/40492a64c1db4a1385ba1a397d357d3a/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/PrVcPf1R/DD-National.png", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Dangal", 
+                sources: [
+                    { name: "Server 1", url: "https://live-dangal.akamaized.net/liveabr/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/Hk2rQKsR/Dangal.png", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Dangal 2", 
+                sources: [
+                    { name: "Server 1", url: "https://live-dangal2.akamaized.net/liveabr/playlist.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/HWyjSjkQ/Dangal-2.png", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Abzy Dhakad", 
+                sources: [
+                    { name: "Server 1", url: "https://d2lk5u59tns74c.cloudfront.net/out/v1/4fe6ab07a13543d6bdb2ec63b3e2df44/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/Yq9H0sLb/Abzy-Dhakad.png", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "Bollywood Masala", 
+                sources: [
+                    { name: "Server 1", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8" },
+                ], 
+                img: "https://i.postimg.cc/d1VDH0pY/Bollywood-Masala.png", 
+                category: "Entertainment",
+                description: "India"
+            },
+            { 
+                name: "24/7 CID Bengali", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/mix/cid-bengali.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/nz4WS5nT/cid-bengali.jpg", 
+                category: "Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "24/7 Crime Patrol Bengali", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/mix/crime-patrol-bengali.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/FFSwCT9W/crime-patrol.jpg", 
+                category: "Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "24/7 Humayun Ahmed", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/mix/humayun-ahmed/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/mZ7yRY36/ha24-7.jpg", 
+                category: "Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "RTV", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/out/bangladesh/rtv.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/Qxh9wGTV/rtv.jpg", 
+                category: "Mix-Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "Mohona Television", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/out/bangladesh/mohona.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/vBTXWxQF/mohona.jpg", 
+                category: "Mix-Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "Channel 9", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/out/bangladesh/channel9.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/76Xhyb76/channel-9.jpg", 
+                category: "Mix-Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "SATV", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/out/bangladesh/satv.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/02nTdDvr/satv.jpg", 
+                category: "Mix-Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "Bangla TV", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/out/bangladesh/banglatv.index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/L4bfq0Ys/bangla-tv.jpg", 
+                category: "Mix-Entertainment",
+                description: "Bengali"
+            },
+            { 
+                name: "Willow", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=abfabaee-3898-4279-8645-3da5b0232867&e.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/L4b8S5Df/willow.jpg", 
+                category: "Sports",
+                description: "World"
+            },
+            { 
+                name: "T Sports", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=fc95d30e-5323-4c12-bb38-7a1e3f04acc2&e.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/DZbVq4jM/t-sports.jpg", 
+                category: "Sports",
+                description: "Bangladesh"
+            },
+            { 
+                name: "DD Sports", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=3b238911-d385-406a-b936-07550f30a4f3&e.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/WzT8m77f/dd-sports.jpg", 
+                category: "Sports",
+                description: "Bangladesh"
+            },
+            { 
+                name: "Star Sports", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=3ac46078-2bf0-4998-a021-37b459e09fba&e.m3u8" }
+                ], 
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQY7ffw6x-c0JnBVjcBdy3rnCfjKpWUhYHWGMqzL4Ch7JLNO6T8VEV-vpLJ7aenFoMytjc&usqp=CAU", 
+                category: "Sports",
+                description: "India"
+            },
+            { 
+                name: "Star Sports Select", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=594809c8-574e-46cf-a3e5-26e0bec1fe33&e.m3u8" }
+                ], 
+                img: "data:image/jpeg;base64,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", 
+                category: "Sports",
+                description: "India"
+            },
+            { 
+                name: "Sony Sports", 
+                sources: [
+                    { name: "Server 1", url: "https://bongoflixbd.top/stream.php?id=b04b3742-e2a1-4d56-8b3e-2b2154766ada&e.m3u8" }
+                ], 
+                img: "https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Sony_Sports_Network.svg/1200px-Sony_Sports_Network.svg.png", 
+                category: "Sports",
+                description: "India"
+            },
+            { 
+                name: "WWE Network", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://fsly.stream.peacocktv.com/Content/CMAF_CTR-4s/Live/channel(vc106wh3yw)/master.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "00208c93f4358213b52220898b962385",
+                            key: "8ae6063167228e350dd132d4a1573102"
+                        }
+                    }
+                ], 
+                img: "https://upload.wikimedia.org/wikipedia/en/8/8c/WWE_Network_logo.jpeg", 
+                category: "Sports",
+                description: "World"
+            },
+            { 
+                name: "Animal Planet", 
+                sources: [
+                    { name: "Server 1", url: "https://vodzong.mjunoon.tv:8087/streamtest/Animal-Planet-158-3/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/RFm9McDx/animal-planet.png", 
+                category: "Infotainment",
+                description: "World"
+            },
+            { 
+                name: "Discovery", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "b70a8cf9450c4d6484b4ac4d3c6761c0",
+                            key: "0908be844260409cbac180bf0181da40"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/SjFpx6XX/discovery.jpg", 
+                category: "Infotainment",
+                description: "India"
+            },
+            { 
+                name: "History", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://qp-pldt-live-grp-11-prod.akamaized.net/out/u/dr_historyhd.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "a7724b7ca2604c33bb2e963a0319968a",
+                            key: "6f97e3e2eb2bade626e0281ec01d3675"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/LsC3pgKH/history.jpg", 
+                category: "Infotainment",
+                description: "India"
+            },
+            { 
+                name: "TLC", 
+                sources: [
+                    { 
+                        name: "Auto", 
+                        url: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd",
+                        type: "dash",
+                        drm: {
+                            kid: "601f58d4b7094d2baf78c85d1d9cb6c9",
+                            key: "609e0cc03198455fa36fd2cc3e7f940d"
+                        }
+                    }
+                ], 
+                img: "https://i.postimg.cc/63p7Yght/tlc-1.jpg", 
+                category: "Infotainment",
+                description: "India"
+            },
+            { 
+                name: "Travelxp", 
+                sources: [
+                    { name: "Server 1", url: "https://travelxp-travelxp-1-eu.rakuten.wurl.tv/playlist.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/zGdP4tPR/travelxp.png", 
+                category: "Infotainment",
+                description: "World"
+            },
+            { 
+                name: "Peace TV", 
+                sources: [
+                    { name: "Server 1", url: "https://dzkyvlfyge.erbvr.com/PeaceTvBangla/index.m3u8" },
+                ], 
+                img: "https://images.crunchbase.com/image/upload/c_pad,h_256,w_256,f_auto,q_auto:eco,dpr_1/jzxlzmgwj9tfpyv8ldpf", 
+                category: "Religious",
+                description: "World"
+            },
+            { 
+                name: "Ilm TV", 
+                sources: [
+                    { name: "Originals", url: "https://tplay.live/originals/ilm-tv/index.m3u8" }
+                ],
+                img: "https://i.postimg.cc/tTkx4MWv/ilm.jpg", 
+                category: "Channels",
+                description: "Asia"
+            },
+            { 
+                name: "Islam bangla", 
+                sources: [
+                    { name: "Server 1", url: "https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDDEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFsaWRtaW51aiPhnPTI2/islamchbangla.stream/tracks-v1a1/mono.m3u8" },
+                ], 
+                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPhxUqZi3tzsjdt5rn7AWyC2CQgH8z14fd2g&s", 
+                category: "Religious",
+                description: "World"
+            },
+            { 
+                name: "Om Bangla", 
+                sources: [
+                    { name: "Originals", url: "https://tplay.live/originals/om-bangla/index.m3u8" }
+                ],
+                img: "https://i.postimg.cc/jjmyWm0m/om-bangla-2.jpg", 
+                category: "Channels",
+                description: "Asia"
+            },
+            { 
+                name: "24/7 Bangla Kirtan", 
+                sources: [
+                    { name: "Playlist", url: "https://tplay.live/playlist/mix/bangla-kirtan/index.m3u8" }
+                ], 
+                img: "https://i.postimg.cc/QMtrZNRk/bangla-kirtan.jpg", 
+                category: "Religious",
+                description: "Bengali"
+            },
+        ];
+
+        // Shaka Player Initialization
+        function initShakaPlayer() {
+            if (!shaka.Player.isBrowserSupported()) {
+                console.error('Shaka Player is not supported in this browser');
+                return null;
+            }
+
+            const player = new shaka.Player(video);
+            
+            player.configure({
+                drm: {
+                    servers: {
+                        'com.widevine.alpha': '',
+                        'com.microsoft.playready': '',
+                        'org.w3.clearkey': ''
+                    }
+                },
+                streaming: {
+                    bufferingGoal: 30,
+                    rebufferingGoal: 15,
+                    bufferBehind: 30
+                }
+            });
+
+            player.addEventListener('error', (event) => {
+                console.error('Shaka Player error:', event.detail);
+                showError('DRM playback error: ' + event.detail.message);
+            });
+
+            return player;
+        }
+
+        // Load DRM Source
+        async function loadDrmSource(source) {
+            try {
+                loadingOverlay.style.display = "flex";
+                errorMessage.style.display = "none";
+
+                if (!shakaPlayer) {
+                    shakaPlayer = initShakaPlayer();
+                    if (!shakaPlayer) {
+                        throw new Error('Shaka Player initialization failed');
+                    }
+                }
+
+                // Configure DRM for this specific source
+                if (source.drm) {
+                    await shakaPlayer.configure({
+                        drm: {
+                            clearKeys: {
+                                [source.drm.kid]: source.drm.key
+                            }
+                        }
+                    });
+                }
+
+                // Load the manifest
+                await shakaPlayer.load(source.url);
+                
+                loadingOverlay.style.display = "none";
+                errorMessage.style.display = "none";
+                
+                // Try to play automatically
+                await video.play();
+                
+            } catch (error) {
+                console.error('Error loading DRM content:', error);
+                showError('Failed to load DRM content: ' + error.message);
+                loadingOverlay.style.display = "none";
+            }
+        }
+
+        // Cleanup Players
+        function cleanupPlayers() {
+            // Cleanup HLS
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+            
+            // Cleanup Shaka Player
+            if (shakaPlayer) {
+                shakaPlayer.unload();
+                shakaPlayer.destroy();
+                shakaPlayer = null;
+            }
+            
+            // Reset video element
+            video.src = "";
+            video.load();
+        }
+
+        // Initialize Player
+        function initPlayer() {
+            volumeSlider.addEventListener("input", function() {
+                video.volume = this.value;
+                if (video.volume == 0) {
+                    muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                } else {
+                    muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                }
+            });
+
+            video.addEventListener("play", function() {
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                isPlaying = true;
+                posterImage.style.display = "none";
+            });
+
+            video.addEventListener("pause", function() {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                isPlaying = false;
+            });
+
+            video.addEventListener("waiting", function() {
+                loadingOverlay.style.display = "flex";
+            });
+
+            video.addEventListener("playing", function() {
+                loadingOverlay.style.display = "none";
+                errorMessage.style.display = "none";
+            });
+
+            video.addEventListener("error", function() {
+                loadingOverlay.style.display = "none";
+                showError("Failed to play this source. Trying backup...");
+                tryNextBackup();
+            });
+
+            adVideo.addEventListener("ended", function() {
+                finishAd();
+            });
+
+            skipAdBtn.addEventListener("click", function() {
+                finishAd();
+            });
+
+            channelSearch.addEventListener("input", function() {
+                filterChannels();
+            });
+
+            qualityMenu.addEventListener("change", function() {
+                if (hls) {
+                    hls.currentLevel = parseInt(this.value);
+                }
+            });
+
+            sourceMenu.addEventListener("change", function() {
+                loadSource(parseInt(this.value));
+            });
+
+            loadChannels();
+            
+            if (channels.length > 0) {
+                loadChannel(0);
+            }
+        }
+
+        // Load Channels List
+        function loadChannels() {
+            channelList.innerHTML = "";
+            filteredChannels = channels.filter(channel => 
+                currentCategory === 'all' || channel.category === currentCategory
+            );
+            
+            filteredChannels.forEach((channel, index) => {
+                const channelItem = document.createElement("div");
+                channelItem.className = "channel-item";
+                channelItem.setAttribute("data-category", channel.category);
+                
+                // Add DRM badge for DRM channels
+                const hasDrm = channel.sources.some(source => source.drm);
+                const drmBadge = hasDrm ? '<span class="drm-badge"></span>' : '';
+                
+                channelItem.innerHTML = `
+                    <div class="channel-item-img">
+                        <img src="${channel.img}" alt="${channel.name}">
+                        ${drmBadge}
+                        <span class="channel-item-live"></span>
+                    </div>
+                `;
+                channelItem.addEventListener("click", () => {
+                    loadChannel(index);
+                });
+                
+                channelItem.title = channel.name;
+                
+                channelList.appendChild(channelItem);
+                channelMap.set(index, channelItem);
+            });
+            
+            channelCount.textContent = `${filteredChannels.length} channels`;
+        }
+
+        // Filter by Category
+        function filterCategory(category, event) {
+            document.querySelectorAll('.category-bar button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentCategory = category;
+            loadChannels();
+        }
+
+        // Filter Channels by Search
+        function filterChannels() {
+            const searchTerm = channelSearch.value.toLowerCase();
+            document.querySelectorAll(".channel-item").forEach(item => {
+                const name = item.title.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        // Load Channel
+        function loadChannel(index) {
+            channelClickCount++;
+            
+            if (channelClickCount >= adInterval && !isAdPlaying) {
+                pendingChannelIndex = index;
+                showAd();
+                return;
+            }
+            
+            if (isAdPlaying) {
+                pendingChannelIndex = index;
+                return;
+            }
+            
+            document.querySelectorAll(".channel-item").forEach(item => {
+                item.classList.remove("active");
+            });
+            
+            if (channelMap.has(index)) {
+                channelMap.get(index).classList.add("active");
+            }
+            
+            const channel = filteredChannels[index];
+            currentChannelIndex = index;
+            currentBackupSources = channel.sources;
+            currentBackupIndex = 0;
+            
+            sourceMenu.innerHTML = "";
+            channel.sources.forEach((source, i) => {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = source.name + (source.drm ? " (DRM)" : "");
+                sourceMenu.appendChild(option);
+            });
+            
+            loadSource(0);
+        }
+
+        // Load Source
+        function loadSource(sourceIndex) {
+            cleanupPlayers();
+            
+            const source = currentBackupSources[sourceIndex];
+            currentChannelUrl = source.url;
+            currentBackupIndex = sourceIndex;
+
+            loadingOverlay.style.display = "flex";
+            errorMessage.style.display = "none";
+
+            // Check if this is a DRM source
+            if (source.type === 'dash' && source.drm) {
+                loadDrmSource(source);
+                return;
+            }
+
+            // Existing HLS loading for non-DRM sources
+            if (Hls.isSupported() && !isIOS) {
+                hls = new Hls({
+                    maxBufferLength: 30,
+                    backBufferLength: 30,
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    abrEwmaDefaultEstimate: 500000,
+                    abrEwmaSlowVoD: 30000
+                });
+                
+                hls.loadSource(source.url);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    populateQualityMenu();
+                    video.play().catch(e => {
+                        console.error("Failed to autoplay:", e);
+                        loadingOverlay.style.display = "none";
+                    });
+                });
+                
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error("HLS error:", data);
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                showError("Network error. Trying backup source...");
+                                tryNextBackup();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                showError("Media error. Trying backup source...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                showError("Unrecoverable error. Trying backup source...");
+                                tryNextBackup();
+                                break;
+                        }
+                    }
+                });
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = source.url;
+                video.addEventListener("loadedmetadata", function() {
+                    video.play().catch(e => {
+                        console.error("Failed to autoplay:", e);
+                        loadingOverlay.style.display = "none";
+                    });
+                });
+            } else {
+                showError("Your browser doesn't support HLS playback.");
+            }
+        }
+
+        // Try Next Backup Source
+        function tryNextBackup() {
+            currentBackupIndex++;
+            if (currentBackupIndex < currentBackupSources.length) {
+                loadSource(currentBackupIndex);
+            } else {
+                showError("All backup sources failed. Please try another channel.");
+            }
+        }
+
+        // Populate Quality Menu
+        function populateQualityMenu() {
+            if (!hls) return;
+            
+            qualityMenu.innerHTML = "";
+            const autoOption = document.createElement("option");
+            autoOption.value = -1;
+            autoOption.textContent = "Auto";
+            qualityMenu.appendChild(autoOption);
+            
+            if (hls.levels && hls.levels.length > 1) {
+                hls.levels.forEach((level, index) => {
+                    const option = document.createElement("option");
+                    option.value = index;
+                    option.textContent = level.height + "p";
+                    qualityMenu.appendChild(option);
+                });
+                
+                hls.on(Hls.Events.LEVEL_SWITCHED, function(event, data) {
+                    const level = hls.levels[data.level];
+                    qualityMenu.value = data.level;
+                });
+            } else {
+                qualityMenu.style.display = "none";
+            }
+        }
+
+        // Show Ad
+        function showAd() {
+            isAdPlaying = true;
+            
+            if (!video.paused) {
+                video.pause();
+            }
+            
+            video.style.display = "none";
+            adVideo.style.display = "block";
+            adOverlay.style.display = "flex";
+            
+            const randomAdIndex = Math.floor(Math.random() * adVideos.length);
+            adVideo.src = adVideos[randomAdIndex];
+            
+            adVideo.play().catch(e => {
+                console.error("Failed to play ad:", e);
+                finishAd();
+            });
+            
+            let skipTime = 8;
+            skipAdBtn.textContent = `Skip Ad (${skipTime}s)`;
+            skipAdBtn.disabled = true;
+            
+            adProgress.style.width = "0%";
+            
+            adTimer = setInterval(() => {
+                skipTime--;
+                skipAdBtn.textContent = `Skip Ad (${skipTime}s)`;
+                
+                if (skipTime <= 0) {
+                    clearInterval(adTimer);
+                    skipAdBtn.textContent = "Skip Ad";
+                    skipAdBtn.disabled = false;
+                }
+            }, 1000);
+            
+            const adDuration = 30;
+            let elapsed = 0;
+            
+            adProgressInterval = setInterval(() => {
+                elapsed += 0.1;
+                const progressPercent = Math.min((elapsed / adDuration) * 100, 100);
+                adProgress.style.width = `${progressPercent}%`;
+                
+                if (elapsed >= adDuration) {
+                    clearInterval(adProgressInterval);
+                }
+            }, 100);
+        }
+
+        // Finish Ad
+        function finishAd() {
+            isAdPlaying = false;
+            
+            if (adTimer) clearInterval(adTimer);
+            if (adProgressInterval) clearInterval(adProgressInterval);
+            
+            adVideo.style.display = "none";
+            adOverlay.style.display = "none";
+            adVideo.src = "";
+            video.style.display = "block";
+            
+            channelClickCount = 0;
+            adInterval = Math.floor(Math.random() * 13) + 15;
+            
+            if (pendingChannelIndex !== null) {
+                loadChannel(pendingChannelIndex);
+                pendingChannelIndex = null;
+            } else {
+                video.play().catch(e => {
+                    console.error("Failed to resume video:", e);
+                });
+            }
+        }
+
+        // Control Functions
+        function togglePlayPause() {
+            if (video.paused) {
+                video.play().catch(e => {
+                    console.error("Failed to play:", e);
+                });
+            } else {
+                video.pause();
+            }
+        }
+
+        function toggleMute() {
+            video.muted = !video.muted;
+            if (video.muted) {
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                volumeSlider.value = 0;
+            } else {
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                volumeSlider.value = video.volume;
+            }
+        }
+
+        function cycleZoom() {
+            zoomIndex = (zoomIndex + 1) % zoomModes.length;
+            video.style.objectFit = zoomModes[zoomIndex];
+
+        if (document.fullscreenElement) {
+            const fullscreenVideo = document.fullscreenElement.querySelector('video') || document.fullscreenElement;
+        fullscreenVideo.style.objectFit = zoomModes[zoomIndex];
+      }
+    }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen().catch(err => {
+                    console.error("Fullscreen error:", err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function requestFullscreen() {
+            video.webkitEnterFullscreen();
+        }
+
+        function togglePiP() {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture().catch(err => {
+                    console.error("PiP error:", err);
+                });
+            } else if (document.pictureInPictureEnabled) {
+                video.requestPictureInPicture().catch(err => {
+                    console.error("PiP error:", err);
+                });
+            }
+        }
+
+        function nextChannel() {
+            const nextIndex = (currentChannelIndex + 1) % filteredChannels.length;
+            loadChannel(nextIndex);
+        }
+
+        function prevChannel() {
+            const prevIndex = (currentChannelIndex - 1 + filteredChannels.length) % filteredChannels.length;
+            loadChannel(prevIndex);
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.style.display = "block";
+        }
+
+        // Initialize player when page loads
+        window.addEventListener("load", initPlayer);
+
+        // Handle fullscreen changes
+        document.addEventListener("webkitfullscreenchange", function() {
+            if (document.webkitFullscreenElement) {
+                video.style.objectFit = "contain";
+            } else {
+                video.style.objectFit = zoomModes[zoomIndex];
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFull = !!document.fullscreenElement;
+            if (isFull) {
+              const fullscreenVideo = document.fullscreenElement.querySelector('video') || document.fullscreenElement;
+        fullscreenVideo.style.objectFit = zoomModes[zoomIndex];
+        } else {
+           video.style.objectFit = zoomModes[zoomIndex];
+        }
+        });
+
+        // iOS specific setup
+        if (isIOS) {
+            document.querySelectorAll(".ios-fullscreen-btn").forEach(btn => {
+                btn.style.display = "flex";
+            });
+            
+            document.querySelectorAll(".control-btn:not(.ios-fullscreen-btn)").forEach(btn => {
+                btn.style.display = "none";
+            });
+            
+            video.setAttribute("playsinline", "true");
+            video.setAttribute("webkit-playsinline", "true");
+        }
+    </script>
+        <script type="text/javascript" data-cfasync="false">
+/*<![CDATA[/* */
+(function(){var i=window,b="fbbdf77e6b86c2b9d962d45002eb13b7",y=[["siteId",832*540-540+252-332+4797778],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],z=["d3d3LnZpc2FyaW9tZWRpYS5jb20va2hhbmRsZWJhcnMubWluLmNzcw==","ZDEzazdwcmF4MXlpMDQuY2xvdWRmcm9udC5uZXQvSG53Zi9jcGF0aC5taW4uanM=","d3d3LnVyZW1kaWxyb25rdy5jb20vbWhhbmRsZWJhcnMubWluLmNzcw==","d3d3Lm5wbmFiaHd5ai5jb20vdnpqbS9pcGF0aC5taW4uanM="],m=-1,v,c,e=function(){clearTimeout(c);m++;if(z[m]&&!(1786267533000<(new Date).getTime()&&1<m)){v=i.document.createElement("script");v.type="text/javascript";v.async=!0;var u=i.document.getElementsByTagName("script")[0];v.src="https://"+atob(z[m]);v.crossOrigin="anonymous";v.onerror=e;v.onload=function(){clearTimeout(c);i[b.slice(0,16)+b.slice(0,16)]||e()};c=setTimeout(e,5E3);u.parentNode.insertBefore(v,u)}};if(!i[b]){try{Object.freeze(i[b]=y)}catch(e){}e()}})();
+/*]]>/* */
+</script>
+    
+</body>
+</html>
