@@ -1,0 +1,17 @@
+{
+  "name": "HaiTv",
+  "short_name": "HaiTv",
+  "id": "com.HaiTv.app",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ff1a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
