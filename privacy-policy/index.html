@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HaiTv – Privacy Policy</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #3B5BDB;
+      --brand-light:  #EEF2FF;
+      --accent:       #4C6EF5;
+      --text:         #1A1A2E;
+      --muted:        #6B7280;
+      --border:       #E5E7EB;
+      --bg:           #F8F9FF;
+      --card:         #FFFFFF;
+      --radius:       12px;
+      --shadow:       0 2px 16px rgba(59,91,219,.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1E3A8A 0%, var(--brand) 60%, var(--accent) 100%);
+      color: #fff;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+
+    .app-icon {
+      width: 72px; height: 72px;
+      background: rgba(255,255,255,.18);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .app-icon svg { width: 40px; height: 40px; fill: #fff; }
+
+    header h1 { font-size: 28px; font-weight: 700; letter-spacing: -.5px; }
+    header p  { margin-top: 6px; font-size: 14px; opacity: .82; }
+
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      background: rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+    .toc h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--brand);
+      margin-bottom: 14px;
+    }
+    .toc ol { padding-left: 18px; }
+    .toc li { margin: 5px 0; }
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color .2s;
+    }
+    .toc a:hover { color: var(--brand); text-decoration: underline; }
+
+    /* ── Section cards ── */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 28px 26px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-icon {
+      width: 40px; height: 40px; min-width: 40px;
+      background: var(--brand-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .section-icon svg { width: 20px; height: 20px; stroke: var(--brand); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .section h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brand);
+      margin: 18px 0 8px;
+    }
+
+    .section p { margin-bottom: 12px; color: #374151; }
+    .section p:last-child { margin-bottom: 0; }
+
+    ul.list, ol.list {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+    ul.list li, ol.list li {
+      margin: 6px 0;
+      color: #374151;
+    }
+    ul.list li strong { color: var(--text); }
+
+    /* ── Permission table ── */
+    .perm-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13.5px;
+    }
+    .perm-table th {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .perm-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: #374151;
+    }
+    .perm-table tr:last-child td { border-bottom: none; }
+    .perm-table tr:hover td { background: #F5F7FF; }
+    .perm-name {
+      font-family: monospace;
+      font-size: 12.5px;
+      background: #F3F4F6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      color: #1D4ED8;
+      font-weight: 600;
+    }
+
+    /* ── Info box ── */
+    .info-box {
+      background: var(--brand-light);
+      border-left: 4px solid var(--brand);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 14px;
+      color: #1E3A8A;
+    }
+
+    /* ── Grievance card ── */
+    .grievance-card {
+      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      border: 1px solid #C7D2FE;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-top: 12px;
+    }
+    .grievance-card p { margin: 4px 0; font-size: 14px; color: #1E3A8A; }
+    .grievance-card strong { color: var(--text); }
+    .grievance-card a { color: var(--brand); text-decoration: none; font-weight: 600; }
+    .grievance-card a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+    }
+    footer a { color: var(--brand); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      header h1 { font-size: 22px; }
+      .section { padding: 20px 16px; }
+      .toc { padding: 18px 16px; }
+      .perm-table { font-size: 12px; }
+      .perm-table th, .perm-table td { padding: 8px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="app-icon">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+  </div>
+  <h1>HaiTv – Privacy Policy</h1>
+  <p>IPTV Player Application</p>
+  <span class="badge">Effective Date: June 22, 2026</span>
+</header>
+
+<!-- ══════════ CONTENT ══════════ -->
+<div class="wrapper">
+
+  <!-- Intro blurb -->
+  <div class="info-box">
+    HaiTv is committed to protecting your privacy. This policy explains what data we collect, why we collect it, and how we keep it safe. By using the App you agree to this policy.
+  </div>
+
+  <!-- ── TABLE OF CONTENTS ── -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ol class="list">
+      <li><a href="#s1">Interpretation &amp; Definitions</a></li>
+      <li><a href="#s2">Data We Collect</a></li>
+      <li><a href="#s3">How We Use Your Data</a></li>
+      <li><a href="#s4">Retention Periods</a></li>
+      <li><a href="#s5">Data Transfers</a></li>
+      <li><a href="#s6">Your Rights &amp; Deletion</a></li>
+      <li><a href="#s7">Disclosure of Data</a></li>
+      <li><a href="#s8">Security</a></li>
+      <li><a href="#s9">Children's Privacy</a></li>
+      <li><a href="#s10">Third-Party Links</a></li>
+      <li><a href="#s11">Policy Changes</a></li>
+      <li><a href="#s12">Grievance Officer</a></li>
+      <li><a href="#s13">Contact Us</a></li>
+    </ol>
+  </div>
+
+  <!-- ── 1. INTERPRETATION & DEFINITIONS ── -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      </div>
+      <h2>1. Interpretation &amp; Definitions</h2>
+    </div>
+
+    <h3>Interpretation</h3>
+    <p>Words with initial capital letters have meanings defined below. These definitions apply whether they appear in singular or plural form.</p>
+
+    <h3>Definitions</h3>
+    <ul class="list">
+      <li><strong>App</strong> – The HaiTv mobile application.</li>
+      <li><strong>Developer / We / Us / Our</strong> – The individual or entity that operates HaiTv.</li>
+      <li><strong>You / User</strong> – Any individual who downloads or uses the App.</li>
+      <li><strong>Personal Data</strong> – Any information that can identify a natural person directly or indirectly.</li>
+      <li><strong>Usage Data</strong> – Anonymized, aggregated data collected automatically when you use the App (e.g., crash logs, feature interactions).</li>
+      <li><strong>Device</strong> – Any smartphone, tablet, or electronic device used to access the App.</li>
+      <li><strong>IPTV</strong> – Internet Protocol Television; streaming content delivered via internet protocols.</li>
+      <li><strong>Playlist / Stream URL</strong> – User-supplied URLs pointing to IPTV content sources.</li>
+    </ul>
+  </div>
+
+  <!-- ── 2. DATA WE COLLECT ── -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.657-4.03 3-9 3S3 13.657 3 12"/><path d="M3 5v14c0 1.657 4.03 3 9 3s9-1.343 9-3V5"/></svg>
+      </div>
+      <h2>2. Data We Collect</h2>
+    </div>
+
+    <h3>2.1 Information You Provide</h3>
+    <p>HaiTv does <strong>not</strong> require user registration or personal accounts. Any IPTV playlist URLs, stream URLs, or credentials you enter in the App are stored <strong>locally on your device only</strong>. We never transmit, store, or access this information on our servers.</p>
+
+    <h3>2.2 Automatically Collected Information</h3>
+    <p>Certain technical data may be collected automatically to maintain and improve the App:</p>
+    <ul class="list">
+      <li><strong>Device Information</strong> – Device model, OS version, and non-personally identifiable device identifiers.</li>
+      <li><strong>Usage Data</strong> – Anonymized feature interaction data, crash reports, and performance metrics. This data cannot identify you personally.</li>
+      <li><strong>Network Information</strong> – Basic network status (Wi-Fi / mobile data) used solely to optimize streaming performance.</li>
+    </ul>
+
+    <h3>2.3 App Permissions</h3>
+    <p>The App requests the following Android permissions to function correctly:</p>
+    <div style="overflow-x:auto;">
+    <table class="perm-table">
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="perm-name">INTERNET</span></td>
+          <td>Fetches IPTV streams and related data over the internet — fundamental to the App's core function.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">ACCESS_NETWORK_STATE</span></td>
+          <td>Checks whether an internet connection is available, used to optimize data usage.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">CHANGE_WIFI_MULTICAST_STATE</span></td>
+          <td>Enables Wi-Fi Multicast mode for local network device discovery and certain streaming protocols.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">FOREGROUND_SERVICE</span></td>
+          <td>Runs a foreground service to keep media playback active when you navigate away from the App.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">POST_NOTIFICATIONS</span></td>
+          <td>Posts playback controls and relevant app notifications to the notification panel.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION</span></td>
+          <td>A custom internal permission for secure component communication within the App.</td>
+        </tr>
+        <tr>
+          <td><span class="perm-name">DUMP</span></td>
+          <td>Associated with <code>androidx.profileinstaller</code> for app profiling and performance optimization.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ── 3. HOW WE USE YOUR DATA ── -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h2>3. How We Use Your Data</h2>
+    </div>
+    <p>The limited data collected by HaiTv is used exclusively for:</p>
+    <ul class="list">
+      <li><strong>App Functionality</strong> – Enabling core IPTV playback, playlist management, and streaming features.</li>
+      <li><strong>Performance Improvement</strong> – Analyzing anonymized crash reports and usage patterns to fix bugs and enhance the user experience.</li>
+      <li><strong>Security &amp; Stability</strong> – Protecting the App from threats and ensuring stable operation.</li>
+    </ul>
+    <div class="info-box">
+      We never use your data for advertising, profiling, or any purpose beyond operating and improving the App.
+    </div>
+  </div>
+
+  <!-- ── 4. RETENTION PERIODS ── -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h2>4. Retention Periods</h2>
+    </div>
+    <p>All data stored locally on your device (playlist URLs, watch history, favourites) remains on your device until you uninstall the App or manually clear its data.</p>
+    <p>Anonymized usage and crash data retained by third-party analytics tools is kept only as long as necessary to fulfil the purposes described in this policy, after which it is deleted or anonymized further.</p>
+    <p>We do not retain personally identifiable data on our servers because we do not collect it in the first place.</p>
+  </div>
+
+  <!-- ── 5. DATA TRANSFERS ── -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+      <h2>5. Data Transfers</h2>
+    </div>
+    <p>HaiTv is developed and operated from <strong>West Bengal, India</strong>. If you access the App from outside India, please be aware that limited anonymized technical data may be processed in India or by servers operated by third-party analytics providers, which may be located in other jurisdictions.</p>
+    <p>By using the App, you consent to the processing of anonymized data as described in this policy, regardless of where you are located. We ensure that any such transfers comply with applicable data protection laws.</p>
+  </div>
+
+  <!-- ── 6. YOUR RIGHTS & DELETION ── -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h2>6. Your Rights &amp; Deletion</h2>
+    </div>
+    <p>Since HaiTv does not collect personally identifiable information, most traditional data-subject rights (access, rectification, portability) apply only to the local data stored on your own device, which you control directly.</p>
+    <p>You may exercise the following rights at any time:</p>
+    <ul class="list">
+      <li><strong>Delete Local Data</strong> – Clear the App's storage via your device's Settings → Apps → HaiTv → Clear Data.</li>
+      <li><strong>Delete All Data</strong> – Uninstall the App to remove all locally stored information.</li>
+      <li><strong>Opt Out of Analytics</strong> – Contact us at the email below to request exclusion from anonymized analytics collection.</li>
+      <li><strong>Raise a Grievance</strong> – Contact the Grievance Officer listed in Section 12 for any privacy concern.</li>
+    </ul>
+    <p>We will respond to all verifiable requests within <strong>30 days</strong> as required under applicable Indian law (IT Act, 2000 and DPDP Act, 2023).</p>
+  </div>
+
+  <!-- ── 7. DISCLOSURE OF DATA ── -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+      <h2>7. Disclosure of Data</h2>
+    </div>
+    <p>HaiTv does <strong>not</strong> sell, rent, or trade your information with third parties. Because we do not collect personal IPTV credentials or viewing data, there is no such information to disclose.</p>
+    <p>We may share anonymized, aggregated usage data with third-party analytics providers solely to understand usage patterns and improve the App. This data cannot identify you personally.</p>
+    <p>Data may be disclosed when required by law if we are in good faith belief that such action is necessary to:</p>
+    <ul class="list">
+      <li>Comply with a legal obligation or valid court/government order.</li>
+      <li>Protect and defend the rights or property of HaiTv.</li>
+      <li>Prevent or investigate possible wrongdoing in connection with the App.</li>
+      <li>Ensure the personal safety of users or the public.</li>
+    </ul>
+  </div>
+
+  <!-- ── 8. SECURITY ── -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <h2>8. Security</h2>
+    </div>
+    <p>We implement reasonable technical and organizational measures to protect information stored locally on your device and any anonymized data we process. These measures include secure coding practices, use of HTTPS for any data in transit, and regular security reviews.</p>
+    <p>However, no method of internet transmission or electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your information, we cannot guarantee its absolute security. We encourage you to use a secure device lock and keep your OS updated.</p>
+  </div>
+
+  <!-- ── 9. CHILDREN'S PRIVACY ── -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h2>9. Children's Privacy</h2>
+    </div>
+    <p>HaiTv is <strong>not intended for children under the age of 13</strong> (or under 18 where a higher age threshold applies under local law). We do not knowingly collect personally identifiable information from children.</p>
+    <p>If you are a parent or guardian and believe your child has provided personal information through the App, please contact us immediately at the email address below. If we become aware that we have inadvertently collected data from a child, we will take prompt steps to delete it from our records.</p>
+  </div>
+
+  <!-- ── 10. THIRD-PARTY LINKS ── -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <h2>10. Third-Party Links &amp; Services</h2>
+    </div>
+    <p>HaiTv is a player and does not provide IPTV content. The content you access comes from third-party IPTV providers or sources that you configure. We are not responsible for the privacy practices or content of these third-party services.</p>
+    <p>The App may integrate with third-party services such as <strong>Google Play Services</strong> for functionalities like Chromecast / Cast support. These services operate under their own privacy policies (e.g., <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>).</p>
+    <p>We encourage you to review the privacy policies of any third-party IPTV provider or service you choose to use with HaiTv.</p>
+  </div>
+
+  <!-- ── 11. POLICY CHANGES ── -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <h2>11. Policy Changes</h2>
+    </div>
+    <p>We may update this Privacy Policy from time to time to reflect changes in the App's features, legal requirements, or best practices. When we do, we will revise the <strong>Effective Date</strong> at the top of this page.</p>
+    <p>For material changes, we will provide a prominent notice within the App or via notification. We encourage you to review this policy periodically. Continued use of the App after any changes constitutes your acceptance of the updated policy.</p>
+  </div>
+
+  <!-- ── 12. GRIEVANCE OFFICER ── -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h2>12. Grievance Officer</h2>
+    </div>
+    <p>In accordance with the Information Technology Act, 2000 and applicable rules thereunder (including the DPDP Act, 2023), the details of the Grievance Officer are provided below:</p>
+    <div class="grievance-card">
+      <p><strong>Role:</strong> Grievance Officer / Owner / Developer</p>
+      <p><strong>Location:</strong> West Bengal, India</p>
+      <p><strong>Email:</strong> <a href="mailto:business.tizongaming@gmail.com">business.tizongaming@gmail.com</a></p>
+      <p><strong>Phone:</strong> <a href="tel:+918637856826">+91 86378 56826</a></p>
+      <p style="margin-top:10px; font-size:13px; opacity:.8;">Grievances will be addressed within <strong>30 days</strong> of receipt.</p>
+    </div>
+  </div>
+
+  <!-- ── 13. CONTACT US ── -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2>13. Contact Us</h2>
+    </div>
+    <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please reach out to us:</p>
+    <ul class="list">
+      <li><strong>Email:</strong> <a href="mailto:business.tizongaming@gmail.com" style="color:var(--brand);">business.tizongaming@gmail.com</a></li>
+      <li><strong>Phone:</strong> +91 86378 56826</li>
+      <li><strong>Location:</strong> West Bengal, India</li>
+    </ul>
+    <p>We are committed to resolving any concerns you may have about our privacy practices in a timely and transparent manner.</p>
+  </div>
+
+</div><!-- /wrapper -->
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <p><strong>HaiTv Privacy Policy</strong></p>
+  <p style="margin-top:4px;">Effective Date: June 22, 2026 &nbsp;|&nbsp; Author: SUBHOJIT HALDAR &nbsp;|&nbsp; West Bengal, India</p>
+  <p style="margin-top:4px;"><a href="mailto:business.tizongaming@gmail.com">business.tizongaming@gmail.com</a></p>
+</footer>
+
+</body>
+</html>
